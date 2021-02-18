@@ -55,19 +55,19 @@ module "cdn" {
       }
     }
   }
+  
+  default_cache_behavior = {
+    target_origin_id       = "something"
+    viewer_protocol_policy = "allow-all"
 
-  cache_behavior = {
-    default = {
-      target_origin_id       = "something"
-      viewer_protocol_policy = "allow-all"
-
-      allowed_methods = ["GET", "HEAD", "OPTIONS"]
-      cached_methods  = ["GET", "HEAD"]
-      compress        = true
-      query_string    = true
-    }
-
-    s3 = {
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD"]
+    compress        = true
+    query_string    = true
+  }
+  
+  ordered_cache_behavior = [
+    {
       path_pattern           = "/static/*"
       target_origin_id       = "s3_one"
       viewer_protocol_policy = "redirect-to-https"
@@ -77,7 +77,7 @@ module "cdn" {
       compress        = true
       query_string    = true
     }
-  }
+  ]
 
   viewer_certificate = {
     acm_certificate_arn = "arn:aws:acm:us-east-1:135367859851:certificate/1032b155-22da-4ae0-9f69-e206f825458b"
@@ -109,17 +109,18 @@ module "cdn" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | aliases | Extra CNAMEs (alternate domain names), if any, for this distribution. | `list(string)` | `null` | no |
-| cache\_behavior | The map of cache behaviors for this distribution. Key `default` will be used as the default cache behavior, all other keys will be used as ordered list of cache behaviors. List from top to bottom in order of precedence. The topmost cache behavior will have precedence 0. | `any` | `null` | no |
 | comment | Any comments you want to include about the distribution. | `string` | `null` | no |
 | create\_distribution | Controls if CloudFront distribution should be created | `bool` | `true` | no |
 | create\_origin\_access\_identity | Controls if CloudFront origin access identity should be created | `bool` | `false` | no |
 | custom\_error\_response | One or more custom error response elements | `any` | `{}` | no |
+| default\_cache\_behavior | The default cache behavior for this distribution | `any` | `null` | no |
 | default\_root\_object | The object that you want CloudFront to return (for example, index.html) when an end user requests the root URL. | `string` | `null` | no |
 | enabled | Whether the distribution is enabled to accept end user requests for content. | `bool` | `true` | no |
 | geo\_restriction | The restriction configuration for this distribution (geo\_restrictions) | `any` | `{}` | no |
 | http\_version | The maximum HTTP version to support on the distribution. Allowed values are http1.1 and http2. The default is http2. | `string` | `"http2"` | no |
 | is\_ipv6\_enabled | Whether the IPv6 is enabled for the distribution. | `bool` | `null` | no |
 | logging\_config | The logging configuration that controls how logs are written to your distribution (maximum one). | `any` | `{}` | no |
+| ordered\_cache\_behavior | An ordered list of cache behaviors resource for this distribution. List from top to bottom in order of precedence. The topmost cache behavior will have precedence 0. | `list(any)` | `[]` | no |
 | origin | One or more origins for this distribution (multiples allowed). | `any` | `null` | no |
 | origin\_access\_identities | Map of CloudFront origin access identities (value as a comment) | `map(string)` | `{}` | no |
 | origin\_group | One or more origin\_group for this distribution (multiples allowed). | `any` | `{}` | no |
